@@ -32,6 +32,7 @@ public class Earth {
 
             tex.updatePixels();
             shape.setTexture(tex);
+
         } catch (IOException | URISyntaxException exception) {
             exception.printStackTrace();
         }

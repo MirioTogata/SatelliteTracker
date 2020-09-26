@@ -3,6 +3,7 @@ package st.rendering;
 import processing.core.PGraphics;
 import processing.core.PVector;
 import processing.event.KeyEvent;
+import processing.event.MouseEvent;
 import st.Earth;
 import st.util.FMath;
 
@@ -40,7 +41,6 @@ public class Player {
             lon -= dt * FMath.PI;
         }
 
-
     }
 
     public void keyPressed(KeyEvent e) {
@@ -75,6 +75,11 @@ public class Player {
                 dDown = false;
                 break;
         }
+    }
+
+    public void mouseWheel(MouseEvent e) {
+        alt += e.getCount() * 0.5f;
+        alt = FMath.clamp(alt, Earth.RADIUS, Earth.RADIUS * 4.0f);
     }
 
 }

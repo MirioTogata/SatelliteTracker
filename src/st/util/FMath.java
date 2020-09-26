@@ -18,7 +18,6 @@ public class FMath {
         return a < b ? a : b;
     }
 
-
     public static float max(float a, float b){
         return a < b ? b : a;
     }

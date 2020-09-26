@@ -5,10 +5,13 @@ import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.core.PVector;
 import processing.event.KeyEvent;
+import processing.event.MouseEvent;
 import processing.opengl.PShader;
 import st.Earth;
 
 import java.awt.*;
+import java.io.File;
+import java.net.URISyntaxException;
 
 public class Window extends PApplet {
 
@@ -21,7 +24,9 @@ public class Window extends PApplet {
 
     private Earth earth;
     private Player player;
-    long tstart, tlast;
+    private long tstart, tlast;
+
+    private PShader earthShader;
 
     @Override
     public void settings() {
@@ -36,6 +41,17 @@ public class Window extends PApplet {
         player = new Player(20.0f);
 
         g.perspective(PI / 3.0f, width/(float)height, 0.1f, 100.0f);
+
+        try {
+            earthShader = loadShader(
+                    new File(getClass().getResource("/shaders/frag_tex.glsl").toURI()).getAbsolutePath(),
+                    new File(getClass().getResource("/shaders/vert_tex.glsl").toURI()).getAbsolutePath());
+
+            shader(earthShader);
+
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
 
         tstart = System.nanoTime();
         tlast = tstart;
@@ -54,6 +70,10 @@ public class Window extends PApplet {
         g.background(0.0f);
         player.applyTransform(g);
 
+        g.ambientLight(60.0f, 60.0f, 60.0f);
+        g.lightFalloff(1.0f, 0.000f, 0.0f);
+        g.pointLight(1000.0f, 1000.0f, 1000.0f, 0.0f, 0.0f, 20.0f);
+
         g.pushMatrix();
 
         earth.draw(g);
@@ -69,5 +89,10 @@ public class Window extends PApplet {
     @Override
     public void keyReleased(KeyEvent event) {
         player.keyReleased(event);
+    }
+
+    @Override
+    public void mouseWheel(MouseEvent event) {
+        player.mouseWheel(event);
     }
 }
