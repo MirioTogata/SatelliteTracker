@@ -41,14 +41,14 @@ public class Window extends PApplet {
         g.perspective(PI / 3.0f, width/(float)height, 0.1f, 100.0f);
 
         try {
-            earthShader = loadShader(
-                    new File(getClass().getResource("/shaders/frag_tex.glsl").toURI()).getAbsolutePath(),
-                    new File(getClass().getResource("/shaders/vert_tex.glsl").toURI()).getAbsolutePath());
+                earthShader = loadShader(
+                        new File(getClass().getResource("/shaders/frag_tex.glsl").toURI()).getAbsolutePath(),
+                        new File(getClass().getResource("/shaders/vert_tex.glsl").toURI()).getAbsolutePath());
 
-            shader(earthShader);
+                shader(earthShader);
 
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
         }
 
         tstart = System.nanoTime();
@@ -70,12 +70,9 @@ public class Window extends PApplet {
 
         g.ambientLight(255.0f, 255.0f, 255.0f);
         g.lightFalloff(1.0f, 0.000f, 0.0f);
-        g.pointLight(0, 0, 0, 0.0f, 0.0f, 20.0f);
-
-        g.pushMatrix();
-
+        g.pointLight(1000.0f, 1000.0f, 1000.0f, 0.0f, 0.0f, 20.0f);
+        
         earth.draw(g);
-        g.popMatrix();
     }
 
 
