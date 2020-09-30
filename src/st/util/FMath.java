@@ -5,6 +5,8 @@ import java.lang.Math;
 public class FMath {
 
     public static final float PI = (float)Math.PI;
+    // Gravitational constant G measured in Mm^3 / (Yg * s * s)
+    public static final float G = 6.67430e-8f;
 
     public static float sin(float x) {
         return (float)Math.sin(x);

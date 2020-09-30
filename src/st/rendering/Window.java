@@ -15,8 +15,6 @@ import java.net.URISyntaxException;
 
 public class Window extends PApplet {
 
-
-
     private static Window instance;
     public static Window getWnd() {
         return instance;
@@ -70,9 +68,9 @@ public class Window extends PApplet {
         g.background(0.0f);
         player.applyTransform(g);
 
-        g.ambientLight(60.0f, 60.0f, 60.0f);
+        g.ambientLight(255.0f, 255.0f, 255.0f);
         g.lightFalloff(1.0f, 0.000f, 0.0f);
-        g.pointLight(1000.0f, 1000.0f, 1000.0f, 0.0f, 0.0f, 20.0f);
+        g.pointLight(0, 0, 0, 0.0f, 0.0f, 20.0f);
 
         g.pushMatrix();
 

@@ -1,6 +1,7 @@
 package st;
 
 import processing.core.*;
+import processing.opengl.PShader;
 import st.rendering.Window;
 import st.util.FMath;
 
@@ -13,10 +14,19 @@ public class Earth {
 
     // earths radius in mega meters (10^6 meters)
     public static final float RADIUS = 12.742f / 2.0f;
+    // earths mass in yotta gram (10^24 grams)
+    public static final float MASS = 5.9722e3f;
+
+    private static PShader shader;
 
     private PShape shape;
 
     public Earth(PGraphics g) {
+
+        if(shader == null){
+
+        }
+
         try {
             shape = g.loadShape(new File(getClass().getResource("/models/earth.obj").toURI()).getAbsolutePath());
 
@@ -29,7 +39,6 @@ public class Earth {
                     tex.pixels[i + (tex.height - 1 - j) * tex.width] = col;
                 }
             }
-
             tex.updatePixels();
             shape.setTexture(tex);
 
@@ -37,10 +46,14 @@ public class Earth {
             exception.printStackTrace();
         }
 
-        shape.setStroke(0x00000000);
+        shape.setStroke(false);
+
     }
 
     public void draw(PGraphics g) {
+
+
+
         g.pushMatrix();
         g.scale(Earth.RADIUS);
         g.shape(shape);
