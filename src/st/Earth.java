@@ -52,8 +52,6 @@ public class Earth {
 
     public void draw(PGraphics g) {
 
-
-
         g.pushMatrix();
         g.scale(Earth.RADIUS);
         g.shape(shape);
@@ -61,8 +59,19 @@ public class Earth {
         g.popMatrix();
     }
 
+    public static PVector cartesian(PVector coords) {
+        return cartesian(coords.x, coords.y, coords.z);
+    }
+
     public static PVector cartesian(float alt, float lat, float lon) {
+
+        alt += Earth.RADIUS;
+        lat = -lat;
+        lon = -lon;
+
         float polar = FMath.PI/2.0f - lat;
+
+
         return new PVector(
                 alt * FMath.cos(lon) * FMath.sin(polar),
                 alt * FMath.cos(polar),

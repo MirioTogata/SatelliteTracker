@@ -27,18 +27,18 @@ public class Player {
 
     public void update(float dt) {
         if(wDown) {
-            lat -= dt * FMath.PI * 0.5f;
-            lat = FMath.clamp(lat, -FMath.PI * 0.5f, FMath.PI * 0.5f);
+            lat += dt * FMath.PI * 0.5f;
+            lat = FMath.clamp(lat, -FMath.PI * 0.5f + 0.001f, FMath.PI * 0.5f - 0.001f);
         }
         if(sDown) {
-            lat += dt * FMath.PI * 0.5f;
-            lat = FMath.clamp(lat, -FMath.PI * 0.5f, FMath.PI * 0.5f);
+            lat -= dt * FMath.PI * 0.5f;
+            lat = FMath.clamp(lat, -FMath.PI * 0.5f + 0.001f, FMath.PI * 0.5f - 0.001f);
         }
         if(aDown) {
-            lon += dt * FMath.PI;
+            lon -= dt * FMath.PI;
         }
         if(dDown) {
-            lon -= dt * FMath.PI;
+            lon += dt * FMath.PI;
         }
 
     }

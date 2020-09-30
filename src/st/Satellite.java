@@ -1,5 +1,7 @@
 package st;
 
+import processing.core.PConstants;
+import processing.core.PGraphics;
 import processing.core.PShape;
 import processing.core.PVector;
 import st.util.FMath;
@@ -10,12 +12,35 @@ public class Satellite {
 
     private static PShape shape;
 
-    private PVector pos;
-    private PVector vel;
+    private PVector pos, vel;
 
-    public Satellite(
-            PVector coord1, PVector coord2) {
-        pos = Earth.cartesian(coord1.x, coord1.y, coord1.z);
+    public Satellite(PGraphics g, PVector coord1, PVector coord2, long t1, long t2) {
+
+        coord1.x *= 0.001;
+        coord2.x *= 0.001;
+
+        float deltat = (float)(t2 - t1);
+
+        coord2.z -= deltat * 0.00007272205f;
+
+        coord1.y *= FMath.PI / 180.0f;
+        coord1.z *= FMath.PI / 180.0f;
+
+        coord2.y *= FMath.PI / 180.0f;
+        coord2.z *= FMath.PI / 180.0f;
+
+        pos = Earth.cartesian(coord1);
+        PVector pos2 = Earth.cartesian(coord2);
+
+        vel = PVector.sub(pos2, pos);
+
+
+        if(shape == null) {
+            shape = g.createShape(PShape.POINT, 0.0f, 0.0f, 0.0f);
+            shape.setStroke(0xFFFF0000);
+            shape.scale(2.0f);
+        }
+
     }
 
     public void update(float dt) {
@@ -30,7 +55,15 @@ public class Satellite {
         pos.add(vel.copy().mult(dt));
     }
 
+    public void draw(PGraphics g) {
+        g.pushMatrix();
+        g.translate(pos.x, pos.y, pos.z);
 
+        g.shape(shape);
+
+        g.popMatrix();
+
+    }
 
 
 }
