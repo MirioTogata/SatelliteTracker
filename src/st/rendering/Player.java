@@ -79,7 +79,7 @@ public class Player {
 
     public void mouseWheel(MouseEvent e) {
         alt += e.getCount() * 0.5f;
-        alt = FMath.clamp(alt, Earth.RADIUS, Earth.RADIUS * 4.0f);
+        alt = FMath.clamp(alt, 1.0f, 100.0f);
     }
 
 }

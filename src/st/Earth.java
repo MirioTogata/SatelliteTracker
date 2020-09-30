@@ -24,14 +24,25 @@ public class Earth {
     public Earth(PGraphics g) {
 
         if(shader == null){
+            try {
+                shader = g.loadShader(
+                        new File(getClass().getResource("/shaders/frag_tex.glsl").toURI()).getAbsolutePath(),
+                        new File(getClass().getResource("/shaders/vert_tex.glsl").toURI()).getAbsolutePath());
+
+                g.shader(shader);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+
 
         }
 
         try {
             shape = g.loadShape(new File(getClass().getResource("/models/earth.obj").toURI()).getAbsolutePath());
 
-            PImage tex = new PImage(ImageIO.read(new File(getClass().getResource("/textures/earth.jpg").toURI())));
-            tex.loadPixels();
+            PImage tex = new PImage(ImageIO.read(new File(getClass().getResource("/textures/earth.png").toURI())));
+            /*tex.loadPixels();
+            tex.resize(1<<13, 1<<12);
             for(int i = 0; i < tex.width; i++){
                 for (int j = 0; j < tex.height / 2; j++) {
                     int col = tex.pixels[i + j * tex.width];
@@ -40,6 +51,8 @@ public class Earth {
                 }
             }
             tex.updatePixels();
+            tex.save("C:\\users\\valde\\projects\\SatelliteTracker\\resources\\textures\\earth.png");*/
+
             shape.setTexture(tex);
 
         } catch (IOException | URISyntaxException exception) {
@@ -70,7 +83,6 @@ public class Earth {
         lon = -lon;
 
         float polar = FMath.PI/2.0f - lat;
-
 
         return new PVector(
                 alt * FMath.cos(lon) * FMath.sin(polar),

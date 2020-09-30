@@ -11,6 +11,7 @@ import processing.event.MouseEvent;
 import processing.opengl.PShader;
 import st.Earth;
 import st.Satellite;
+import st.SatelliteManager;
 
 import java.awt.*;
 import java.io.File;
@@ -34,7 +35,7 @@ public class Window extends PApplet {
 
     private PShader earthShader;
 
-    private Satellite sat;
+    private SatelliteManager satMgr;
 
     @Override
     public void settings() {
@@ -50,39 +51,20 @@ public class Window extends PApplet {
 
         g.perspective(PI / 3.0f, width/(float)height, 0.1f, 100.0f);
 
-        try {
-                earthShader = loadShader(
-                        new File(getClass().getResource("/shaders/frag_tex.glsl").toURI()).getAbsolutePath(),
-                        new File(getClass().getResource("/shaders/vert_tex.glsl").toURI()).getAbsolutePath());
-
-                shader(earthShader);
-
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-        }
-
         tstart = System.nanoTime();
         tlast = tstart;
 
+        satMgr = new SatelliteManager();
+
         try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://www.n2yo.com/rest/v1/satellite/positions/25544/0/0/0/5/&apiKey=X7JFAR-LQFKV6-W5A39A-4KB1"))
-                    .build();
+            int[] noradids = new int[24];
 
+            for(int i = 0; i < 24; i++){
+                noradids[i] = 44914 + i;
+            }
 
-            String s = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
-            JSONObject data = JSONObject.parse(s);
+            satMgr.track(g, noradids);
 
-            JSONArray positions = (JSONArray)data.get("positions");
-
-            sat = new Satellite(
-                    g,
-                    getCoords(positions.getJSONObject(0)),
-                    getCoords(positions.getJSONObject(1)),
-                    (positions.getJSONObject(0)).getInt("timestamp"),
-                    (positions.getJSONObject(1)).getInt("timestamp")
-                    );
         } catch (IOException exception) {
             exception.printStackTrace();
         } catch (InterruptedException e) {
@@ -100,7 +82,7 @@ public class Window extends PApplet {
         tlast = tnow;
 
         player.update(dt);
-        sat.update(dt);
+        satMgr.update(dt);
 
         g.background(0.0f);
         player.applyTransform(g);
@@ -110,7 +92,7 @@ public class Window extends PApplet {
         g.pointLight(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 20.0f);
         
         earth.draw(g);
-        sat.draw(g);
+        satMgr.draw(g);
 
     }
 
@@ -130,13 +112,6 @@ public class Window extends PApplet {
         player.mouseWheel(event);
     }
 
-    public static PVector getCoords(JSONObject json) {
-        PVector coords = new PVector();
-        coords.x = json.getFloat("sataltitude");
-        coords.y = json.getFloat("satlatitude");
-        coords.z = json.getFloat("satlongitude");
 
-        return coords;
-    }
 
 }
