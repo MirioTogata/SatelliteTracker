@@ -5,6 +5,7 @@ import processing.core.PGraphics;
 import processing.core.PVector;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
+import st.util.FMath;
 
 import java.io.IOException;
 import java.net.URI;
@@ -36,7 +37,6 @@ public class SatelliteManager {
                     .uri(URI.create("https://www.n2yo.com/rest/v1/satellite/positions/" + norad + "/0/0/0/2/&apiKey=X7JFAR-LQFKV6-W5A39A-4KB1"))
                     .build();
 
-
             futures.add(httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                     .thenApply(HttpResponse::body)
                     .thenAccept(json -> {
@@ -60,7 +60,6 @@ public class SatelliteManager {
 
         futures.forEach(f -> f.join());
 
-
     }
 
     public void update(float dt) {
@@ -77,8 +76,11 @@ public class SatelliteManager {
         coords.y = json.getFloat("satlatitude");
         coords.z = json.getFloat("satlongitude");
 
+        coords.x *= 0.001; // kilometers to megameters
+        coords.y *= FMath.PI / 180.0f; // degrees to radians
+        coords.z *= FMath.PI / 180.0f;
+
         return coords;
     }
-
 
 }
