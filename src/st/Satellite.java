@@ -5,41 +5,43 @@ import processing.core.PGraphics;
 import processing.core.PShape;
 import processing.core.PVector;
 import st.util.FMath;
+import st.util.LMath;
 
 import java.util.List;
+import java.util.Vector;
 
 public class Satellite {
 
     private static PShape shape;
     private static Object shapeLock = new Object();
 
-    private PVector pos, vel;
+    private PVector pos;
 
-    public Satellite(PGraphics g, PVector coord1, PVector coord2, long t1, long t2) {
-        refresh(coord1, coord2, t1, t2);
+    private List<PVector> targets;
+    private long tfirst;
 
+    public Satellite(PGraphics g, List<PVector> targets, long tfirst) {
+        refresh(targets, tfirst);
 
-        synchronized (shapeLock){
-            if(shape == null) {
+        synchronized (shapeLock) {
+            if (shape == null) {
                 shape = g.createShape(PShape.POINT, 0.0f, 0.0f, 0.0f);
                 shape.setStroke(0xFFFF0000);
                 shape.scale(3.0f);
             }
         }
-
-
     }
 
-    public void update(float dt) {
-        // a = F * 1/m_1
-        // F = G * (m_1*m_2)/(r^2)
-        // a = G * m_2 / r^2
+    public boolean update(long unixTime, long unixTimeMilli) {
 
-        float accMag =  FMath.G * Earth.MASS / pos.magSq();
-        PVector acc = pos.copy().normalize().mult(-accMag);
+        long targetIndex = unixTime - tfirst + 1;
+        boolean needsRefresh = targetIndex >= 290;
 
-        vel.add(acc.mult(dt));
-        pos.add(vel.copy().mult(dt));
+        targetIndex = LMath.clamp(targetIndex, 1, 299);
+
+        pos = PVector.lerp(targets.get((int)targetIndex - 1), targets.get((int)targetIndex), (unixTimeMilli - unixTime * 1000) / 1000.0f);
+
+        return needsRefresh;
     }
 
     public void draw(PGraphics g) {
@@ -51,16 +53,9 @@ public class Satellite {
         g.popMatrix();
     }
 
-    public void refresh(PVector coord1, PVector coord2, long t1, long t2) {
-
-        float deltat = (float)(t2 - t1);
-
-        coord2.z -= deltat * 0.00007272205f;
-
-        pos = Earth.cartesian(coord1);
-        PVector pos2 = Earth.cartesian(coord2);
-
-        vel = PVector.sub(pos2, pos);
+    public void refresh(List<PVector> targets, long tfirst) {
+        this.targets = targets;
+        this.tfirst = tfirst;
     }
 
 }

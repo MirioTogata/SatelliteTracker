@@ -15,9 +15,5 @@ public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         PApplet.main("st.rendering.Window");
 
-        int norad = 20580;
-
-
-
     }
 }

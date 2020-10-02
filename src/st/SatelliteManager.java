@@ -34,7 +34,7 @@ public class SatelliteManager {
             final int norad = noradids[i];
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://www.n2yo.com/rest/v1/satellite/positions/" + norad + "/0/0/0/2/&apiKey=X7JFAR-LQFKV6-W5A39A-4KB1"))
+                    .uri(URI.create("https://www.n2yo.com/rest/v1/satellite/positions/" + norad + "/0/0/0/300/&apiKey=X7JFAR-LQFKV6-W5A39A-4KB1"))
                     .build();
 
             futures.add(httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
@@ -43,14 +43,14 @@ public class SatelliteManager {
                         JSONObject data = JSONObject.parse(json);
                         JSONArray positions = (JSONArray) data.get("positions");
 
+                        Vector<PVector> targets = new Vector<>();
+                        for (int j = 0; j < 300; j++) {
+                            targets.add(Earth.cartesian(getCoords(positions.getJSONObject(j))));
+                        }
 
-                        Satellite sat = new Satellite(
-                                g,
-                                getCoords(positions.getJSONObject(0)),
-                                getCoords(positions.getJSONObject(1)),
-                                (positions.getJSONObject(0)).getInt("timestamp"),
-                                (positions.getJSONObject(1)).getInt("timestamp")
-                        );
+                        long unixTimeFirst = positions.getJSONObject(0).getInt("timestamp");
+
+                        Satellite sat = new Satellite(g, targets, unixTimeFirst);
 
                         synchronized (sats) {
                             sats.put(norad, sat);
@@ -63,7 +63,36 @@ public class SatelliteManager {
     }
 
     public void update(float dt) {
-        sats.forEach((norad, sat) -> sat.update(dt));
+        final long unixTimeMillis = System.currentTimeMillis();
+        final long unixTime = unixTimeMillis / 1000L;
+
+        sats.forEach((norad, sat) -> {
+
+            boolean needsRefresh = sat.update(unixTime, unixTimeMillis);
+            if(needsRefresh) {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create("https://www.n2yo.com/rest/v1/satellite/positions/" + norad + "/0/0/0/300/&apiKey=X7JFAR-LQFKV6-W5A39A-4KB1"))
+                        .build();
+
+                httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                        .thenApply(HttpResponse::body)
+                        .thenAccept(json -> {
+                            JSONObject data = JSONObject.parse(json);
+                            JSONArray positions = (JSONArray) data.get("positions");
+
+                            Vector<PVector> targets = new Vector<>();
+                            for (int j = 0; j < 300; j++) {
+                                targets.add(Earth.cartesian(getCoords(positions.getJSONObject(j))));
+                            }
+
+                            long unixTimeFirst = positions.getJSONObject(0).getInt("timestamp");
+                            sat.refresh(targets, unixTimeFirst);
+                        });
+
+
+            }
+
+        });
     }
 
     public void draw(PGraphics g) {
