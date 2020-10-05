@@ -60,7 +60,26 @@ public class Satellite {
     }
 
     public float intersect(Ray ray) {
-        return 0.0f;
+        PVector ori_ = PVector.sub(ray.ori, pos);
+
+        float a = PVector.dot(ray.dir, ray.dir);
+        float b = 2 * PVector.dot(ray.dir, ori_);
+        float c = PVector.dot(ori_, ori_) - 0.01f;
+
+        float d = b*b - 4 * a * c;
+
+        if(d < 0.0f){
+            return Float.POSITIVE_INFINITY;
+        }
+
+        float t1 = (-b + FMath.sqrt(d))/(2.0f * a);
+        float t2 = (-b - FMath.sqrt(d))/(2.0f * a);
+
+        return FMath.min(t1,t2);
+    }
+
+    public PVector getPos() {
+        return pos;
     }
 
 }

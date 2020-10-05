@@ -125,7 +125,7 @@ public class Window extends PApplet {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        player.getRay(g, e.getX(), e.getY());
+        satMgr.mousePressed(g, e);
     }
 
     public float aspectRatio() {

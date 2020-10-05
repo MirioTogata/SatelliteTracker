@@ -1,6 +1,5 @@
 package st;
 
-import jdk.jshell.SourceCodeAnalysis;
 import processing.core.PGraphics;
 import processing.core.PVector;
 import processing.data.JSONArray;
@@ -21,7 +20,7 @@ public class SatelliteManager {
 
     private HttpClient httpClient;
     private HashMap<Integer, Satellite> sats;
-
+    private Satellite clicked;
 
     public SatelliteManager() {
         sats = new HashMap<>();
@@ -106,17 +105,15 @@ public class SatelliteManager {
         Ray ray = new Ray(g, e.getX(), e.getY());
 
         float dist = Float.POSITIVE_INFINITY;
-        Satellite hit = null;
+        clicked = null;
         
         for(Satellite sat : sats.values()) {
             float t = sat.intersect(ray);
             if(t < dist) {
                 dist = t;
-                hit = sat;
+                clicked = sat;
             }
         }
-
-
     }
 
     public static PVector getCoords(JSONObject json) {
@@ -131,5 +128,4 @@ public class SatelliteManager {
 
         return coords;
     }
-
 }

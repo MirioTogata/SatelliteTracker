@@ -8,6 +8,10 @@ public class FMath {
     // Gravitational constant G measured in Mm^3 / (Yg * s * s)
     public static final float G = 6.67430e-8f;
 
+    public static float sqrt(float x) {
+        return (float)Math.sqrt(x);
+    }
+
     public static float sin(float x) {
         return (float)Math.sin(x);
     }

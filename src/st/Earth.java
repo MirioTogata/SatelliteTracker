@@ -29,7 +29,7 @@ public class Earth {
                         new File(getClass().getResource("/shaders/frag_tex.glsl").toURI()).getAbsolutePath(),
                         new File(getClass().getResource("/shaders/vert_tex.glsl").toURI()).getAbsolutePath());
 
-                g.shader(shader);
+                //g.shader(shader);
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
