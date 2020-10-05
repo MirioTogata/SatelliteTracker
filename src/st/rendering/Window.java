@@ -12,6 +12,7 @@ import processing.opengl.PShader;
 import st.Earth;
 import st.Satellite;
 import st.SatelliteManager;
+import st.util.FMath;
 
 import java.awt.*;
 import java.io.File;
@@ -47,9 +48,9 @@ public class Window extends PApplet {
         instance = this;
 
         earth = new Earth(g);
-        player = new Player(20.0f);
+        player = new Player();
 
-        g.perspective(PI / 3.0f, width/(float)height, 0.1f, 100.0f);
+        g.perspective(Player.VFOV, width/(float)height, 0.1f, 100.0f);
 
         tstart = System.nanoTime();
         tlast = tstart;
@@ -63,7 +64,8 @@ public class Window extends PApplet {
                 noradids[i] = 44914 + i;
             }
 
-            satMgr.track(g, noradids);
+            //satMgr.track(g, noradids);
+            satMgr.track(g, 25544);
 
         } catch (IOException exception) {
             exception.printStackTrace();
@@ -75,6 +77,7 @@ public class Window extends PApplet {
 
     @Override
     public void draw() {
+
 
         long tnow = System.nanoTime();
         float t = (tnow - tstart) * 1e-9f;
@@ -94,6 +97,14 @@ public class Window extends PApplet {
         earth.draw(g);
         satMgr.draw(g);
 
+        strokeWeight(1.0f);
+
+        stroke(0xFFFF0000);
+        line(0.0f, 0.0f, 0.0f, Earth.RADIUS * 2.0f, 0.0f, 0.0f);
+        stroke(0xFF00FF00);
+        line(0.0f, 0.0f, 0.0f, 0.0f, Earth.RADIUS * 2.0f, 0.0f);
+        stroke(0xFF0000FF);
+        line(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, Earth.RADIUS * 2.0f);
     }
 
 
@@ -112,6 +123,13 @@ public class Window extends PApplet {
         player.mouseWheel(event);
     }
 
+    @Override
+    public void mousePressed(MouseEvent e) {
+        player.getRay(g, e.getX(), e.getY());
+    }
 
+    public float aspectRatio() {
+        return width/(float)height;
+    }
 
 }

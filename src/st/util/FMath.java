@@ -16,6 +16,10 @@ public class FMath {
         return (float)Math.cos(x);
     }
 
+    public static float tan(float x) {
+        return (float)Math.tan(x);
+    }
+
     public static float min(float a, float b){
         return a < b ? a : b;
     }

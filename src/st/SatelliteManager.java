@@ -5,7 +5,9 @@ import processing.core.PGraphics;
 import processing.core.PVector;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
+import processing.event.MouseEvent;
 import st.util.FMath;
+import st.util.Ray;
 
 import java.io.IOException;
 import java.net.URI;
@@ -23,6 +25,7 @@ public class SatelliteManager {
 
     public SatelliteManager() {
         sats = new HashMap<>();
+
 
         httpClient = HttpClient.newHttpClient();
     }
@@ -99,13 +102,30 @@ public class SatelliteManager {
         sats.forEach((norad, sat) -> sat.draw(g));
     }
 
+    public void mousePressed(PGraphics g, MouseEvent e) {
+        Ray ray = new Ray(g, e.getX(), e.getY());
+
+        float dist = Float.POSITIVE_INFINITY;
+        Satellite hit = null;
+        
+        for(Satellite sat : sats.values()) {
+            float t = sat.intersect(ray);
+            if(t < dist) {
+                dist = t;
+                hit = sat;
+            }
+        }
+
+
+    }
+
     public static PVector getCoords(JSONObject json) {
         PVector coords = new PVector();
         coords.x = json.getFloat("sataltitude");
         coords.y = json.getFloat("satlatitude");
         coords.z = json.getFloat("satlongitude");
 
-        coords.x *= 0.001; // kilometers to megameters
+        coords.x *= 1e-3; // kilometers to megameters
         coords.y *= FMath.PI / 180.0f; // degrees to radians
         coords.z *= FMath.PI / 180.0f;
 

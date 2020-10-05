@@ -6,6 +6,7 @@ import processing.core.PShape;
 import processing.core.PVector;
 import st.util.FMath;
 import st.util.LMath;
+import st.util.Ray;
 
 import java.util.List;
 import java.util.Vector;
@@ -56,6 +57,10 @@ public class Satellite {
     public void refresh(List<PVector> targets, long tfirst) {
         this.targets = targets;
         this.tfirst = tfirst;
+    }
+
+    public float intersect(Ray ray) {
+        return 0.0f;
     }
 
 }

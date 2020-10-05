@@ -1,19 +1,25 @@
 package st.rendering;
 
 import processing.core.PGraphics;
+import processing.core.PMatrix3D;
+import processing.core.PShape;
 import processing.core.PVector;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
+import processing.opengl.PGraphicsOpenGL;
 import st.Earth;
 import st.util.FMath;
+import st.util.Ray;
 
 public class Player {
+
+    public static final float VFOV = FMath.PI / 3.0f;
+
     private float alt, lat, lon;
     boolean wDown, sDown, aDown, dDown;
 
-
-    public Player(float alt) {
-        this.alt = alt;
+    public Player() {
+        alt = 20.0f;
         lat = 0.0f;
         lon = 0.0f;
     }
