@@ -8,6 +8,7 @@ import processing.data.JSONArray;
 import processing.data.JSONObject;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
+import processing.opengl.PGraphics3D;
 import processing.opengl.PShader;
 import st.Earth;
 import st.Satellite;
@@ -25,6 +26,8 @@ import java.net.http.HttpResponse;
 
 public class Window extends PApplet {
 
+    public static boolean DEBUG = true;
+
     private static Window instance;
     public static Window getWnd() {
         return instance;
@@ -38,6 +41,8 @@ public class Window extends PApplet {
 
     private SatelliteManager satMgr;
 
+    private PGraphics g2d;
+
     @Override
     public void settings() {
         size(1280, 720, PConstants.P3D);
@@ -46,6 +51,8 @@ public class Window extends PApplet {
     @Override
     public void setup() {
         instance = this;
+
+        g2d = createGraphics(g.width, g.height, PConstants.P2D);
 
         earth = new Earth(g);
         player = new Player();
@@ -97,14 +104,25 @@ public class Window extends PApplet {
         earth.draw(g);
         satMgr.draw(g);
 
-        strokeWeight(1.0f);
+        if(DEBUG){
+            g.strokeWeight(1.0f);
 
-        stroke(0xFFFF0000);
-        line(0.0f, 0.0f, 0.0f, Earth.RADIUS * 2.0f, 0.0f, 0.0f);
-        stroke(0xFF00FF00);
-        line(0.0f, 0.0f, 0.0f, 0.0f, Earth.RADIUS * 2.0f, 0.0f);
-        stroke(0xFF0000FF);
-        line(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, Earth.RADIUS * 2.0f);
+            g.stroke(0xFFFF0000);
+            g.line(0.0f, 0.0f, 0.0f, Earth.RADIUS * 2.0f, 0.0f, 0.0f);
+            g.stroke(0xFF00FF00);
+            g.line(0.0f, 0.0f, 0.0f, 0.0f, Earth.RADIUS * 2.0f, 0.0f);
+            g.stroke(0xFF0000FF);
+            g.line(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, Earth.RADIUS * 2.0f);
+        }
+
+        camera();
+        hint(PConstants.DISABLE_DEPTH_TEST);
+
+        fill(255.0f, 255.0f);
+        strokeWeight(0.0f);
+        rect(0.0f, 0.0f, 100.0f, 100.0f);
+
+        hint(PConstants.ENABLE_DEPTH_TEST);
     }
 
 
@@ -131,5 +149,7 @@ public class Window extends PApplet {
     public float aspectRatio() {
         return width/(float)height;
     }
+
+
 
 }

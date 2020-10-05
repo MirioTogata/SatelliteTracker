@@ -1,12 +1,16 @@
 package st;
 
+import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.core.PVector;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
 import processing.event.MouseEvent;
+import processing.opengl.PGraphics3D;
+import st.rendering.Window;
 import st.util.FMath;
 import st.util.Ray;
+import st.util.Util;
 
 import java.io.IOException;
 import java.net.URI;
@@ -21,6 +25,7 @@ public class SatelliteManager {
     private HttpClient httpClient;
     private HashMap<Integer, Satellite> sats;
     private Satellite clicked;
+    private PVector clickedPos;
 
     public SatelliteManager() {
         sats = new HashMap<>();
@@ -99,6 +104,26 @@ public class SatelliteManager {
 
     public void draw(PGraphics g) {
         sats.forEach((norad, sat) -> sat.draw(g));
+
+        if(clicked != null) {
+            clickedPos = clicked.getPos();
+            Util.toRasterSpace(g, clickedPos);
+        }
+
+    }
+
+    public void drawHUD(PGraphics g) {
+        if(clicked != null) {
+
+            g.hint(PConstants.DISABLE_DEPTH_TEST);
+            g.rectMode(PConstants.CENTER);
+            g.strokeWeight(2.0f);
+            g.fill(0x00000000, 0.0f);
+            g.stroke(0xFFFFFFFF);
+
+            g.rect(clickedPos.x, clickedPos.y, 10.0f, 10.0f);
+            g.hint(PConstants.ENABLE_DEPTH_TEST);
+        }
     }
 
     public void mousePressed(PGraphics g, MouseEvent e) {
@@ -114,6 +139,9 @@ public class SatelliteManager {
                 clicked = sat;
             }
         }
+        if(clicked != null)
+            Util.toRasterSpace(g, clicked.getPos());
+
     }
 
     public static PVector getCoords(JSONObject json) {
