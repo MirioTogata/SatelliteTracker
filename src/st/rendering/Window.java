@@ -2,36 +2,26 @@ package st.rendering;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
-import processing.core.PGraphics;
-import processing.core.PVector;
-import processing.data.JSONArray;
-import processing.data.JSONObject;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
-import processing.opengl.PGraphics3D;
 import processing.opengl.PShader;
+
 import st.Earth;
 import st.Satellite;
 import st.SatelliteManager;
-import st.util.FMath;
+import st.ui.ControlPanel;
 
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import javax.swing.*;
 
 public class Window extends PApplet {
 
-    public static boolean DEBUG = true;
+    public static boolean DEBUG = false;
 
     private static Window instance;
     public static Window getWnd() {
         return instance;
     }
+    private JFrame frame;
 
     private Earth earth;
     private Player player;
@@ -41,7 +31,7 @@ public class Window extends PApplet {
 
     private SatelliteManager satMgr;
 
-    private PGraphics g2d;
+    private ControlPanel controlPanel;
 
     @Override
     public void settings() {
@@ -51,8 +41,7 @@ public class Window extends PApplet {
     @Override
     public void setup() {
         instance = this;
-
-        g2d = createGraphics(g.width, g.height, PConstants.P2D);
+        Satellite.init(g);
 
         earth = new Earth(g);
         player = new Player();
@@ -63,28 +52,18 @@ public class Window extends PApplet {
         tlast = tstart;
 
         satMgr = new SatelliteManager();
+        controlPanel = new ControlPanel(satMgr);
 
-        try {
-            int[] noradids = new int[24];
-
-            for(int i = 0; i < 24; i++){
-                noradids[i] = 44914 + i;
-            }
-
-            //satMgr.track(g, noradids);
-            satMgr.track(g, 25544);
-
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        frame = new JFrame("yay");
+        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        frame.setContentPane(controlPanel);
+        frame.pack();
+        frame.setVisible(true);
 
     }
 
     @Override
     public void draw() {
-
 
         long tnow = System.nanoTime();
         float t = (tnow - tstart) * 1e-9f;
@@ -114,27 +93,25 @@ public class Window extends PApplet {
             g.stroke(0xFF0000FF);
             g.line(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, Earth.RADIUS * 2.0f);
         }
-
-        camera();
-        hint(PConstants.DISABLE_DEPTH_TEST);
-
-        fill(255.0f, 255.0f);
-        strokeWeight(0.0f);
-        rect(0.0f, 0.0f, 100.0f, 100.0f);
-
-        hint(PConstants.ENABLE_DEPTH_TEST);
     }
+
 
 
     @Override
     public void keyPressed(KeyEvent event) {
         player.keyPressed(event);
+        if (key == 'c') {
+            println("Hej");
+            frame.setVisible(true);
+        }
     }
+
 
     @Override
     public void keyReleased(KeyEvent event) {
         player.keyReleased(event);
     }
+
 
     @Override
     public void mouseWheel(MouseEvent event) {

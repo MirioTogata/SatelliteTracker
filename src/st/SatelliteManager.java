@@ -14,6 +14,7 @@ import st.util.Util;
 
 import java.io.IOException;
 import java.net.URI;
+
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -34,7 +35,9 @@ public class SatelliteManager {
         httpClient = HttpClient.newHttpClient();
     }
 
-    public void track(PGraphics g, int... noradids) throws IOException, InterruptedException {
+    public void track(int... noradids) throws IOException, InterruptedException {
+        sats.clear();
+
         List<CompletableFuture<Void>> futures = new ArrayList<>();
 
         for (int i = 0; i < noradids.length; i++) {
@@ -57,7 +60,7 @@ public class SatelliteManager {
 
                         long unixTimeFirst = positions.getJSONObject(0).getInt("timestamp");
 
-                        Satellite sat = new Satellite(g, targets, unixTimeFirst);
+                        Satellite sat = new Satellite(targets, unixTimeFirst);
 
                         synchronized (sats) {
                             sats.put(norad, sat);
@@ -73,43 +76,41 @@ public class SatelliteManager {
         final long unixTimeMillis = System.currentTimeMillis();
         final long unixTime = unixTimeMillis / 1000L;
 
-        sats.forEach((norad, sat) -> {
+        synchronized (sats) {
+            sats.forEach((norad, sat) -> {
 
-            boolean needsRefresh = sat.update(unixTime, unixTimeMillis);
-            if(needsRefresh) {
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("https://www.n2yo.com/rest/v1/satellite/positions/" + norad + "/0/0/0/300/&apiKey=X7JFAR-LQFKV6-W5A39A-4KB1"))
-                        .build();
+                boolean needsRefresh = sat.update(unixTime, unixTimeMillis);
+                if (needsRefresh) {
+                    HttpRequest request = HttpRequest.newBuilder()
+                            .uri(URI.create("https://www.n2yo.com/rest/v1/satellite/positions/" + norad + "/0/0/0/300/&apiKey=X7JFAR-LQFKV6-W5A39A-4KB1"))
+                            .build();
 
-                httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                        .thenApply(HttpResponse::body)
-                        .thenAccept(json -> {
-                            JSONObject data = JSONObject.parse(json);
-                            JSONArray positions = (JSONArray) data.get("positions");
+                    httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                            .thenApply(HttpResponse::body)
+                            .thenAccept(json -> {
+                                JSONObject data = JSONObject.parse(json);
+                                JSONArray positions = (JSONArray) data.get("positions");
 
-                            Vector<PVector> targets = new Vector<>();
-                            for (int j = 0; j < 300; j++) {
-                                targets.add(Earth.cartesian(getCoords(positions.getJSONObject(j))));
-                            }
+                                Vector<PVector> targets = new Vector<>();
+                                for (int j = 0; j < 300; j++) {
+                                    targets.add(Earth.cartesian(getCoords(positions.getJSONObject(j))));
+                                }
 
-                            long unixTimeFirst = positions.getJSONObject(0).getInt("timestamp");
-                            sat.refresh(targets, unixTimeFirst);
-                        });
+                                long unixTimeFirst = positions.getJSONObject(0).getInt("timestamp");
+                                sat.refresh(targets, unixTimeFirst);
+                            });
 
 
-            }
+                }
 
-        });
+            });
+        }
     }
 
     public void draw(PGraphics g) {
-        sats.forEach((norad, sat) -> sat.draw(g));
-
-        if(clicked != null) {
-            clickedPos = clicked.getPos();
-            Util.toRasterSpace(g, clickedPos);
+        synchronized (sats) {
+            sats.forEach((norad, sat) -> sat.draw(g));
         }
-
     }
 
     public void drawHUD(PGraphics g) {
@@ -124,6 +125,10 @@ public class SatelliteManager {
             g.rect(clickedPos.x, clickedPos.y, 10.0f, 10.0f);
             g.hint(PConstants.ENABLE_DEPTH_TEST);
         }
+    }
+
+    public Set<Integer> getNoradIds() {
+        return sats.keySet();
     }
 
     public void mousePressed(PGraphics g, MouseEvent e) {
